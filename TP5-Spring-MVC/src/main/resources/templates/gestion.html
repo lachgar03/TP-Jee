@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Banque - Gestion Unique</title>
+    <meta charset="UTF-8"/>
+</head>
+<body>
+
+<h2>Liste des clients</h2>
+<ul id="clientsList"></ul>
+
+<h3>Ajouter un client</h3>
+<form id="addClientForm">
+    <input type="text" id="clientNom" placeholder="Nom" required />
+    <input type="text" id="clientEmail" placeholder="Email" required />
+    <button type="submit">Ajouter Client</button>
+</form>
+
+<hr/>
+
+<h2>Liste des employés</h2>
+<ul id="employesList"></ul>
+
+<h3>Ajouter un employé</h3>
+<form id="addEmployeForm">
+    <input type="text" id="employeNom" placeholder="Nom" required />
+    <input type="text" id="employePoste" placeholder="Poste" required />
+    <input type="number" id="codeSup" placeholder="Code Supérieur" required />
+    <button type="submit">Ajouter Employé</button>
+</form>
+
+<script>
+// Affiche clients
+function loadClients() {
+    fetch('/api/clients')
+        .then(response => response.json())
+        .then(data => {
+            const ul = document.getElementById('clientsList');
+            ul.innerHTML = '';
+            data.forEach(client => {
+                const li = document.createElement('li');
+                li.textContent = `ID: ${client.id} - ${client.nom} - ${client.email}`;
+                ul.appendChild(li);
+            });
+        });
+}
+
+// Affiche employés
+function loadEmployes() {
+    fetch('/api/employes')
+        .then(response => response.json())
+        .then(data => {
+            const ul = document.getElementById('employesList');
+            ul.innerHTML = '';
+            data.forEach(emp => {
+                const li = document.createElement('li');
+                li.textContent = `ID: ${emp.id} - ${emp.nom} - ${emp.poste}`;
+                ul.appendChild(li);
+            });
+        });
+}
+
+// Ajouter client
+document.getElementById('addClientForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const nom = document.getElementById('clientNom').value;
+    const email = document.getElementById('clientEmail').value;
+
+    fetch('/api/clients', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nom: nom, email: email })
+    })
+    .then(() => {
+        loadClients();
+        this.reset();
+    });
+});
+
+// Ajouter employé
+document.getElementById('addEmployeForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const nom = document.getElementById('employeNom').value;
+    const poste = document.getElementById('employePoste').value;
+    const codeSup = document.getElementById('codeSup').value;
+
+    fetch(`/api/employes?codeSup=${codeSup}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nom: nom, poste: poste })
+    })
+    .then(() => {
+        loadEmployes();
+        this.reset();
+    });
+});
+
+// Charger les listes au démarrage
+loadClients();
+loadEmployes();
+
+</script>
+
+</body>
+</html>
